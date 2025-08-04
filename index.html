@@ -1,62 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Client Review</title>
+  <title>Client Review Form</title>
   <style>
-    body { font-family: Arial; background: #f5f5f5; padding: 20px; max-width: 600px; margin: auto; }
-    form { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
-    input, textarea, select { width: 100%; padding: 10px; margin-top: 10px; }
-    button { background: #007bff; color: white; padding: 10px; border: none; border-radius: 5px; margin-top: 10px; }
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    label, input, textarea, select, button { display: block; width: 100%; margin-bottom: 15px; }
+    button { background: #007BFF; color: white; padding: 10px; border: none; }
+    .success { color: green; }
+    .error { color: red; }
   </style>
 </head>
 <body>
-  <h2>Submit Your Review</h2>
+
+  <h2>Client Review Form</h2>
+
   <form id="reviewForm">
-    <input type="text" id="clientName" placeholder="Your Name" required>
-    <input type="email" id="email" placeholder="Your Email" required>
-    <input type="text" id="employeeName" placeholder="Employee Name" required>
-    <select id="rating" required>
-      <option value="">Select Rating</option>
-      <option value="5">⭐⭐⭐⭐⭐</option>
-      <option value="4">⭐⭐⭐⭐</option>
-      <option value="3">⭐⭐⭐</option>
-      <option value="2">⭐⭐</option>
-      <option value="1">⭐</option>
+    <label>Client Name:</label>
+    <input type="text" name="clientName" required>
+
+    <label>Email:</label>
+    <input type="email" name="email" required>
+
+    <label>Employee Name:</label>
+    <input type="text" name="employeeName" required>
+
+    <label>Rating (1 to 5):</label>
+    <select name="rating" required>
+      <option value="">-- Select Rating --</option>
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+      <option>5</option>
     </select>
-    <textarea id="review" placeholder="Write your review here..." required></textarea>
-    <button type="submit">Submit</button>
+
+    <label>Review:</label>
+    <textarea name="review" required></textarea>
+
+    <button type="submit">Submit Review</button>
+    <p id="responseMessage"></p>
   </form>
 
   <script>
-    document.getElementById("reviewForm").addEventListener("submit", function(e) {
+    const form = document.getElementById('reviewForm');
+    const responseMsg = document.getElementById('responseMessage');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
 
-      const data = {
-        clientName: document.getElementById("clientName").value,
-        email: document.getElementById("email").value,
-        employeeName: document.getElementById("employeeName").value,
-        rating: document.getElementById("rating").value,
-        review: document.getElementById("review").value
-      };
+      try {
+        const res = await fetch('https://script.google.com/macros/s/AKfycbzxLM2PF9zhgkteDVwnIIEPj46lCT1HCjSpxo72wTxEahUr2vYv6xW9JYzbIMhEbrR9sQ/exec', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
 
-      fetch("https://script.google.com/macros/s/AKfycbzxLM2PF9zhgkteDVwnIIEPj46lCT1HCjSpxo72wTxEahUr2vYv6xW9JYzbIMhEbrR9sQ/exec", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json"
+        const result = await res.json();
+        if (result.result === 'success') {
+          responseMsg.textContent = "✅ Review submitted successfully!";
+          responseMsg.className = "success";
+          form.reset();
+        } else {
+          throw new Error(result.message);
         }
-      })
-      .then(res => res.json())
-      .then(res => {
-        alert("Thank you! Your review has been submitted.");
-        document.getElementById("reviewForm").reset();
-      })
-      .catch(err => {
-        alert("Failed to submit review.");
-        console.error(err);
-      });
+      } catch (err) {
+        responseMsg.textContent = "❌ Error: " + err.message;
+        responseMsg.className = "error";
+      }
     });
   </script>
+
 </body>
 </html>
