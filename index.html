@@ -1,32 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Client Review</title>
   <meta charset="UTF-8">
+  <title>Client Review</title>
   <style>
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       max-width: 600px;
-      margin: 50px auto;
-      background: #f9f9f9;
+      margin: 40px auto;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+      background: #f9f9f9;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    input, select, textarea, button {
+    input, textarea, select {
       width: 100%;
       padding: 10px;
-      margin: 10px 0;
-      border-radius: 6px;
+      margin-bottom: 15px;
       border: 1px solid #ccc;
+      border-radius: 6px;
     }
     button {
-      background-color: #007bff;
+      padding: 12px 24px;
+      background: #007bff;
       color: white;
       border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
     button:hover {
-      background-color: #0056b3;
+      background: #0056b3;
     }
     #message {
       margin-top: 20px;
@@ -35,6 +38,7 @@
   </style>
 </head>
 <body>
+
   <h2>Client Review Form</h2>
   <form id="reviewForm">
     <input type="text" name="clientName" placeholder="Client Name" required />
@@ -55,37 +59,38 @@
   <p id="message"></p>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyo-_xdUisKUU9hkAhTmdlBmcmC0EPurkVC-eHKwExxbf6ymUrJSLY6cDh5zoN6pQ-PtQ/exec"; // 👈 Change this
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyo-_xdUisKUU9hkAhTmdlBmcmC0EPurkVC-eHKwExxbf6ymUrJSLY6cDh5zoN6pQ-PtQ/exec"; // Replace with your actual link
     const form = document.getElementById("reviewForm");
     const message = document.getElementById("message");
 
-    form.addEventListener("submit", e => {
+    form.addEventListener("submit", async e => {
       e.preventDefault();
 
       const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
+      const params = new URLSearchParams();
+      for (const [key, value] of formData.entries()) {
+        params.append(key, value);
+      }
 
-      fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      .then(res => res.json())
-      .then(res => {
-        if (res.result === "success") {
-          message.textContent = "✅ Review submitted successfully!";
+      try {
+        const res = await fetch(scriptURL, {
+          method: "POST",
+          body: params
+        });
+
+        const json = await res.json();
+        if (json.result === "success") {
+          message.textContent = "✅ Thank you! Your review has been submitted.";
           form.reset();
         } else {
-          message.textContent = "❌ Error: " + res.message;
+          message.textContent = "❌ Error: " + json.message;
         }
-      })
-      .catch(err => {
-        message.textContent = "❌ Failed to send review.";
+      } catch (err) {
         console.error(err);
-      });
+        message.textContent = "❌ Failed to send review.";
+      }
     });
   </script>
+
 </body>
 </html>
