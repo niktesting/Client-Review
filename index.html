@@ -1,89 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Client Review</title>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <title>Client Review Form</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 40px;
       max-width: 600px;
-      margin: 40px auto;
-      padding: 20px;
+      margin: auto;
       border-radius: 12px;
-      background: #f9f9f9;
+      background-color: #fff;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
     }
     input, textarea, select {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
+      padding: 12px;
+      margin: 10px 0;
       border: 1px solid #ccc;
       border-radius: 6px;
+      box-sizing: border-box;
     }
     button {
-      padding: 12px 24px;
-      background: #007bff;
+      width: 100%;
+      padding: 14px;
+      background-color: #28a745;
       color: white;
+      font-size: 16px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
     button:hover {
-      background: #0056b3;
+      background-color: #218838;
     }
-    #message {
+    #status {
       margin-top: 20px;
+      text-align: center;
       font-weight: bold;
     }
   </style>
 </head>
 <body>
+
   <h2>Client Review Form</h2>
   <form id="reviewForm">
-    <input type="text" name="clientName" placeholder="Client Name" required />
-    <input type="email" name="email" placeholder="Client Email" required />
-    <input type="text" name="employeeName" placeholder="Employee Name" required />
+    <input type="text" name="clientName" placeholder="Client Name" required>
+    <input type="email" name="email" placeholder="Client Email" required>
+    <input type="text" name="employeeName" placeholder="Employee Name" required>
     <select name="rating" required>
-      <option value="">Rating</option>
+      <option value="">Select Rating</option>
       <option value="5">★★★★★ - Excellent</option>
       <option value="4">★★★★ - Good</option>
       <option value="3">★★★ - Average</option>
       <option value="2">★★ - Poor</option>
       <option value="1">★ - Very Poor</option>
     </select>
-    <textarea name="review" rows="4" placeholder="Write your review..." required></textarea>
+    <textarea name="review" rows="5" placeholder="Write your review..." required></textarea>
     <button type="submit">Submit Review</button>
   </form>
-  <p id="message"></p>
+
+  <p id="status"></p>
 
   <script>
-    const scriptURL = "https://script.google.com/u/0/home/projects/1N_yVqceoA5bM5ClNbxMHd2ll3nMzN2qvHt3NogcDfFWrFQjBdfNE35ET/edit";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzxLM2PF9zhgkteDVwnIIEPj46lCT1HCjSpxo72wTxEahUr2vYv6xW9JYzbIMhEbrR9sQ/exec";
     const form = document.getElementById("reviewForm");
-    const message = document.getElementById("message");
+    const status = document.getElementById("status");
 
     form.addEventListener("submit", e => {
       e.preventDefault();
-      const data = Object.fromEntries(new FormData(form).entries());
+
+      const formData = new FormData(form);
+      const jsonData = {};
+      formData.forEach((value, key) => jsonData[key] = value);
 
       fetch(scriptURL, {
         method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(jsonData)
       })
-      .then(res => res.json())
-      .then(res => {
-        if (res.result === "success") {
-          message.textContent = "✅ Thank you! Your review has been submitted.";
-          form.reset();
-        } else {
-          message.textContent = "❌ Error: " + res.message;
-        }
+      .then(response => response.text())
+      .then(result => {
+        status.textContent = "✅ Review submitted successfully!";
+        form.reset();
       })
-      .catch(err => {
-        message.textContent = "❌ Failed to send review.";
-        console.error(err);
+      .catch(error => {
+        console.error('Error!', error.message);
+        status.textContent = "❌ Failed to send review.";
       });
     });
   </script>
+
 </body>
 </html>
