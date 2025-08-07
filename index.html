@@ -1,89 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Client Review Form</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Client Review</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 40px auto;
-      padding: 20px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+    body { font-family: Arial; padding: 20px; }
+    input, textarea, select {
+      display: block; width: 100%; margin-bottom: 15px; padding: 8px;
     }
-    label {
-      display: block;
-      margin-top: 15px;
-    }
-    input, textarea, select, button {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      box-sizing: border-box;
-    }
-    button {
-      background-color: #28a745;
-      color: white;
-      border: none;
-      margin-top: 20px;
-    }
+    button { padding: 10px 20px; background-color: green; color: white; border: none; }
   </style>
 </head>
 <body>
-  <h2>Submit Your Review</h2>
+  <h1>Submit a Review</h1>
   <form id="reviewForm">
-    <label for="clientName">Name:</label>
-    <input type="text" id="clientName" name="clientName" required>
-
-    <label for="clientReview">Review:</label>
-    <textarea id="clientReview" name="clientReview" rows="4" required></textarea>
-
-    <label for="clientRating">Rating (1-5):</label>
-    <select id="clientRating" name="clientRating" required>
-      <option value="">--Select--</option>
-      <option value="5">⭐️⭐️⭐️⭐️⭐️</option>
-      <option value="4">⭐️⭐️⭐️⭐️</option>
-      <option value="3">⭐️⭐️⭐️</option>
-      <option value="2">⭐️⭐️</option>
-      <option value="1">⭐️</option>
+    <input type="text" id="clientName" placeholder="Client Name" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="text" id="employeeName" placeholder="Employee Name" required>
+    <select id="rating" required>
+      <option value="">Rating</option>
+      <option value="5">⭐⭐⭐⭐⭐</option>
+      <option value="4">⭐⭐⭐⭐</option>
+      <option value="3">⭐⭐⭐</option>
+      <option value="2">⭐⭐</option>
+      <option value="1">⭐</option>
     </select>
-
-    <button type="submit">Submit Review</button>
+    <textarea id="review" placeholder="Write your review..." rows="5" required></textarea>
+    <button type="submit">Submit</button>
   </form>
 
-  <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyo-_xdUisKUU9hkAhTmdlBmcmC0EPurkVC-eHKwExxbf6ymUrJSLY6cDh5zoN6pQ-PtQ/exec';
+  <p id="responseMsg"></p>
 
-    document.getElementById("reviewForm").addEventListener("submit", function(e) {
+  <script>
+    const form = document.getElementById("reviewForm");
+    const responseMsg = document.getElementById("responseMsg");
+
+    form.addEventListener("submit", async function (e) {
       e.preventDefault();
 
       const data = {
         clientName: document.getElementById("clientName").value,
-        clientReview: document.getElementById("clientReview").value,
-        clientRating: document.getElementById("clientRating").value
+        email: document.getElementById("email").value,
+        employeeName: document.getElementById("employeeName").value,
+        rating: document.getElementById("rating").value,
+        review: document.getElementById("review").value
       };
 
-      fetch(scriptURL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => {
-        if (response.ok) {
-          alert("✅ Thank you! Your review has been submitted.");
-          document.getElementById("reviewForm").reset();
-        } else {
-          throw new Error("Network response was not ok.");
-        }
-      })
-      .catch(error => {
-        console.error("❌ Error:", error);
-        alert("❌ Failed to submit review. Please try again later.");
-      });
+      try {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbyo-_xdUisKUU9hkAhTmdlBmcmC0EPurkVC-eHKwExxbf6ymUrJSLY6cDh5zoN6pQ-PtQ/exec", {
+          method: "POST",
+          mode: "no-cors", // allows public access from GitHub Pages
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        responseMsg.innerText = "Review submitted successfully!";
+        form.reset();
+      } catch (err) {
+        console.error(err);
+        responseMsg.innerText = "Failed to submit review. Try again later.";
+      }
     });
   </script>
 </body>
