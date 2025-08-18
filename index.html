@@ -1,66 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Client Review</title>
+  <meta charset="UTF-8">
+  <title>Personal Review Form</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
-    input, textarea, select {
-      display: block; width: 100%; margin-bottom: 15px; padding: 8px;
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    button { padding: 10px 20px; background-color: green; color: white; border: none; }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      width: 300px;
+    }
+    input, textarea, select {
+      width: 100%;
+      margin: 8px 0;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background: #45a049;
+    }
   </style>
 </head>
 <body>
-  <h1>Submit a Review</h1>
   <form id="reviewForm">
-    <input type="text" id="clientName" placeholder="Client Name" required>
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="text" id="employeeName" placeholder="Employee Name" required>
-    <select id="rating" required>
-      <option value="">Rating</option>
-      <option value="5">⭐⭐⭐⭐⭐</option>
-      <option value="4">⭐⭐⭐⭐</option>
-      <option value="3">⭐⭐⭐</option>
-      <option value="2">⭐⭐</option>
-      <option value="1">⭐</option>
+    <h2>Submit Your Review</h2>
+    <input type="text" name="name" placeholder="Your Name" required>
+    <input type="email" name="email" placeholder="Your Email" required>
+    <select name="rating" required>
+      <option value="">Rate Us</option>
+      <option>5 - Excellent</option>
+      <option>4 - Good</option>
+      <option>3 - Average</option>
+      <option>2 - Poor</option>
+      <option>1 - Very Bad</option>
     </select>
-    <textarea id="review" placeholder="Write your review..." rows="5" required></textarea>
+    <textarea name="review" placeholder="Write your review..." rows="4"></textarea>
     <button type="submit">Submit</button>
+    <p id="msg"></p>
   </form>
 
-  <p id="responseMsg"></p>
-
   <script>
+    const scriptURL = "YOUR_WEB_APP_URL"; // replace with your Apps Script Web App URL
     const form = document.getElementById("reviewForm");
-    const responseMsg = document.getElementById("responseMsg");
+    const msg = document.getElementById("msg");
 
-    form.addEventListener("submit", async function (e) {
+    form.addEventListener("submit", e => {
       e.preventDefault();
-
-      const data = {
-        clientName: document.getElementById("clientName").value,
-        email: document.getElementById("email").value,
-        employeeName: document.getElementById("employeeName").value,
-        rating: document.getElementById("rating").value,
-        review: document.getElementById("review").value
-      };
-
-      try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbyo-_xdUisKUU9hkAhTmdlBmcmC0EPurkVC-eHKwExxbf6ymUrJSLY6cDh5zoN6pQ-PtQ/exec", {
-          method: "POST",
-          mode: "no-cors", // allows public access from GitHub Pages
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-
-        responseMsg.innerText = "Review submitted successfully!";
-        form.reset();
-      } catch (err) {
-        console.error(err);
-        responseMsg.innerText = "Failed to submit review. Try again later.";
-      }
+      fetch(scriptURL, { method: "POST", body: new FormData(form)})
+      .then(res => { msg.innerText = "✅ Review submitted!"; form.reset(); })
+      .catch(err => { msg.innerText = "❌ Error: " + err; });
     });
   </script>
 </body>
